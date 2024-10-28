@@ -4,3 +4,4 @@ dist/
 build/
 .env.local
 package-lock.json
+**/localStorage.json
