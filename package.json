@@ -1,0 +1,23 @@
+{
+  "name": "nodejs-project",
+  "version": "1.0.0",
+  "description": "Node.js project",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "build": "babel src -d dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.15.4",
+    "@babel/core": "^7.15.5",
+    "@babel/node": "^7.26.0",
+    "@babel/preset-env": "^7.15.6",
+    "nodemon": "^2.0.13"
+  }
+}
