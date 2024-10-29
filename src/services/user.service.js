@@ -1,20 +1,26 @@
-import { localDB } from '../libs/db';
 import { getId } from '../libs/utils';
+import { UserModel } from '../models';
 
 class UserService {
-  getUsers() {
-    const users = localDB.getItem('users') ?? {};
-    const userArr = Object.values(users);
-    return { success: true, data: userArr };
+  async getUsers() {
+    try {
+      const users = await UserModel.find();
+      return { success: true, data: users };
+    } catch (error) {
+      return { success: false };
+    }
   }
 
-  getUserById(id) {
-    const users = localDB.getItem('users') ?? {};
-    const user = users[id];
-    return { success: Boolean(user), data: user };
+  async getUserById(id) {
+    try {
+      const user = await UserModel.findById(id);
+      return { success: Boolean(user), data: user };
+    } catch (error) {
+      return { success: false };
+    }
   }
 
-  createUser(data) {
+  async createUser(data) {
     const id = getId();
 
     const newUser = {
@@ -22,34 +28,27 @@ class UserService {
       name: data.name ?? '',
     };
 
-    const users = localDB.getItem('users') ?? {};
-    users[id] = newUser;
-    localDB.setItem('users', users);
+    const user = await UserModel.create(newUser);
+    await user.save();
 
-    return { success: true, data: newUser };
+    return { success: true, data: user };
   }
 
-  deleteUser(id) {
-    const users = localDB.getItem('users') ?? {};
-    delete users[id];
-    localDB.setItem('users', users);
-    return { success: true };
+  async deleteUser(id) {
+    const user = await UserModel.findByIdAndDelete(id);
+    return { success: Boolean(user), data: user };
   }
 
-  updateUser(data) {
+  async updateUser(data) {
     const { id, name } = data;
-    const users = localDB.getItem('users') ?? {};
-    const user = users[id];
-    if (!user) {
+
+    try {
+      const user = await UserModel.findByIdAndUpdate(id, { name });
+
+      return { success: Boolean(user), data: user };
+    } catch {
       return { success: false };
     }
-    const updatedUser = {
-      ...user,
-      name,
-    };
-    users[id] = updatedUser;
-    localDB.setItem('users', users);
-    return { success: true, data: updatedUser };
   }
 }
 

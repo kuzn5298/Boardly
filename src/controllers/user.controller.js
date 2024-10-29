@@ -1,11 +1,11 @@
 import userService from '../services/user.service';
 
 class UsersController {
-  getUsers(req, res) {
+  async getUsers(req, res) {
     const { id } = req.params ?? {};
     const { success, data } = id
-      ? userService.getUserById(id)
-      : userService.getUsers();
+      ? await userService.getUserById(id)
+      : await userService.getUsers();
 
     if (success) {
       res.send(data);
@@ -15,22 +15,34 @@ class UsersController {
     }
   }
 
-  createUser(req, res) {
+  async createUser(req, res) {
     const body = req.body;
-    const { data } = userService.createUser(body);
+    const { data } = await userService.createUser(body);
+
+    res.statusCode = 201;
     res.send(data);
   }
 
-  deleteUser(req, res) {
+  async deleteUser(req, res) {
     const { id } = req.params;
-    const { status } = userService.deleteUser(id);
-    res.send(status);
+    const { success, data } = await userService.deleteUser(id);
+    if (success) {
+      res.send(data);
+    } else {
+      res.statusCode = 404;
+      res.send({ message: 'Not found' });
+    }
   }
 
-  updateUser(req, res) {
+  async updateUser(req, res) {
     const body = req.body;
-    const { data } = userService.updateUser(body);
-    res.send(data);
+    const { success, data } = await userService.updateUser(body);
+    if (success) {
+      res.send(data);
+    } else {
+      res.statusCode = 404;
+      res.send({ message: 'Not found' });
+    }
   }
 }
 

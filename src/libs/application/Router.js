@@ -28,11 +28,11 @@ export class Router {
     return this;
   }
 
-  routerMiddleware = (req, res, next) => {
+  routerMiddleware = async (req, res, next) => {
     const { method, pathname } = req;
     const handler = this.routes[method][pathname];
     if (handler) {
-      handler(req, res, next);
+      await handler(req, res, next);
     } else {
       res.statusCode = 404;
       res.send({ message: 'Not found' });

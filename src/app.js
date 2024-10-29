@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import env from './config/env';
 import { Application, Router } from './libs/application';
 import { initRoutes } from './routes';
@@ -9,4 +10,15 @@ initRoutes(router);
 
 app.use(router.routerMiddleware);
 
-app.listen(env.PORT, () => console.log(`Server started on PORT ${env.PORT}`));
+const start = async () => {
+  try {
+    await mongoose.connect(env.DATABASE_URL);
+    app.listen(env.PORT, () =>
+      console.log(`Server started on PORT ${env.PORT}`)
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+start();

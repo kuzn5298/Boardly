@@ -5,7 +5,6 @@ export const parseJson = (req, res, next) => {
     body += chunk;
   });
 
-  res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
   res.send = (data) => {
