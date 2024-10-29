@@ -1,28 +1,42 @@
-import { User } from '../models';
-import { IUser } from '../interfaces';
+import { User } from '@/models';
+import AppDataSource from '@/ormconfig';
+import { validateOrReject } from 'class-validator';
 
-export const getAllUsers = async (): Promise<IUser[]> => {
-  return await User.find();
+const userRepository = AppDataSource.getRepository(User);
+
+export const getAllUsers = async (): Promise<User[]> => {
+  const users = await userRepository.find();
+  return users;
 };
 
-export const createUser = async (userData: IUser): Promise<IUser> => {
-  const user = new User(userData);
-  return await user.save();
+export const createUser = async (data: Partial<User>): Promise<User> => {
+  const user = userRepository.create(data);
+  await validateOrReject(user);
+  return await userRepository.save(user);
 };
 
-export const getUserById = async (id: string): Promise<IUser | null> => {
-  const user = await User.findById(id);
+export const getUserById = async (id: string): Promise<User | null> => {
+  const user = await userRepository.findOneBy({ id });
   return user;
 };
 
-export const deleteUser = async (id: string): Promise<IUser | null> => {
-  const user = await User.findByIdAndDelete(id);
+export const deleteUser = async (id: string): Promise<User | null> => {
+  const user = await userRepository.findOneBy({ id });
   return user;
 };
 
 export const updateUser = async (
   id: string,
-  userData: Partial<IUser>
-): Promise<IUser | null> => {
-  return await User.findByIdAndUpdate(id, userData, { new: true });
+  data: Partial<User>
+): Promise<User | null> => {
+  const user = await userRepository.findOneBy({ id });
+
+  if (!user) {
+    return null;
+  }
+  const { createdAt, updatedAt, ...userData } = data;
+
+  userRepository.merge(user, userData);
+  await validateOrReject(user);
+  return await userRepository.save(user);
 };
