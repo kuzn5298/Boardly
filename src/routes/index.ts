@@ -1,8 +1,6 @@
 import { Application } from 'express';
 import userRoutes from './userRoutes';
 
-export default class Routes {
-  constructor(app: Application) {
-    app.use('/api/users', userRoutes);
-  }
-}
+export const setupRoutes = (app: Application) => {
+  app.use('/api/users', userRoutes);
+};
