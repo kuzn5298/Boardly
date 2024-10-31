@@ -6,4 +6,4 @@ build/
 package-lock.json
 **/localStorage.json
 .env
-docker-compose.yml
+.DS_Store
