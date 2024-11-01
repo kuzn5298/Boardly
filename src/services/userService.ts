@@ -1,28 +1,30 @@
+import { UserDTO } from '@/dto';
 import { User } from '@/models';
 import AppDataSource from '@/ormconfig';
-import { validateOrReject } from 'class-validator';
+import { validateOrError } from '@/utils';
 
 const userRepository = AppDataSource.getRepository(User);
 
-export const getAllUsers = async (): Promise<User[]> => {
+export const getAllUsers = async (): Promise<UserDTO[]> => {
   const users = await userRepository.find();
-  return users;
+  return users.map((user) => new UserDTO(user));
 };
 
-export const createUser = async (data: Partial<User>): Promise<User> => {
+export const createUser = async (data: Partial<User>): Promise<UserDTO> => {
   const user = userRepository.create(data);
-  await validateOrReject(user);
-  return await userRepository.save(user);
+  await validateOrError(user);
+  await userRepository.save(user);
+  return new UserDTO(user);
 };
 
-export const getUserById = async (id: string): Promise<User | null> => {
+export const getUserById = async (id: string): Promise<UserDTO | null> => {
   const user = await userRepository.findOneBy({ id });
-  return user;
+  return user && new UserDTO(user);
 };
 
-export const deleteUser = async (id: string): Promise<User | null> => {
+export const deleteUser = async (id: string): Promise<UserDTO | null> => {
   const user = await userRepository.findOneBy({ id });
-  return user;
+  return user && new UserDTO(user);
 };
 
 export const updateUser = async (
@@ -37,6 +39,6 @@ export const updateUser = async (
   const { createdAt, updatedAt, ...userData } = data;
 
   userRepository.merge(user, userData);
-  await validateOrReject(user);
+  await validateOrError(user);
   return await userRepository.save(user);
 };
