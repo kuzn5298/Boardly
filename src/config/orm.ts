@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
 import { User } from '@/models';
-import { config } from '@/config/env';
+import { config } from './env';
 
-const AppDataSource = new DataSource({
+export const AppDataSource = new DataSource({
   type: 'postgres',
   host: config.db.host,
   port: config.db.port,
@@ -12,5 +12,3 @@ const AppDataSource = new DataSource({
   entities: [User],
   synchronize: true,
 });
-
-export default AppDataSource;

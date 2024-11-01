@@ -1,6 +1,6 @@
 import { UserDTO } from '@/dto';
 import { User } from '@/models';
-import AppDataSource from '@/ormconfig';
+import { AppDataSource } from '@/config/orm';
 import { validateOrError } from '@/utils';
 
 const userRepository = AppDataSource.getRepository(User);
