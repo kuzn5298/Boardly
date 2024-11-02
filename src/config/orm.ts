@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { User } from '@/models';
+import { RefreshToken, User } from '@/entities';
 import { config } from './env';
 
 export const AppDataSource = new DataSource({
@@ -9,6 +9,6 @@ export const AppDataSource = new DataSource({
   username: config.db.username,
   password: config.db.password,
   database: config.db.database,
-  entities: [User],
+  entities: [User, RefreshToken],
   synchronize: true,
 });

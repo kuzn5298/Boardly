@@ -12,6 +12,15 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'API for managing users',
     },
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
     servers: [
       {
         url: `http://localhost:${config.port}/api`,
@@ -20,7 +29,8 @@ const swaggerOptions = {
   },
   apis: [
     path.resolve(__dirname, './routes/*.{ts,js}'),
-    path.resolve(__dirname, './models/*.{ts,js}'),
+    path.resolve(__dirname, './dto/*.{ts,js}'),
+    path.resolve(__dirname, './errors/ApiError.{ts,js}'),
   ],
 };
 

@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import { userController } from '../controllers';
+import { userController } from '@/controllers';
+import { authHandler } from '@/middlewares';
 
 const router = Router();
 
 /**
  * @swagger
  * tags:
- *   - name: Users
- *     description: User endpoints
+ *   name: Users
+ *   description: User endpoints
  */
 
 /**
@@ -16,6 +17,8 @@ const router = Router();
  *   get:
  *     tags: [Users]
  *     summary: Get a list of users
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of users
@@ -24,18 +27,23 @@ const router = Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/User'
+ *                 $ref: '#/components/schemas/UserDTO'
+ *       401:
+ *         $ref: '#/components/schemas/UnauthorizedError'
  *       500:
- *         description: Server error
+ *         $ref: '#/components/schemas/ServerError'
  */
-router.get('/', userController.getAllUsers);
+router.get('/', authHandler, userController.getAllUsers);
 
 /**
  * @swagger
+ *
  * /users/{id}:
  *   get:
  *     tags: [Users]
  *     summary: Get a user by ID
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -46,81 +54,17 @@ router.get('/', userController.getAllUsers);
  *     responses:
  *       200:
  *         description: User found
+ *         content:
+ *           application/json:
+ *            schema:
+ *             $ref: '#/components/schemas/UserDTO'
+ *       401:
+ *         $ref: '#/components/schemas/UnauthorizedError'
  *       404:
- *         description: User not found
- */
-router.get('/:id', userController.getUserById);
-
-/**
- * @swagger
- * /users:
- *   post:
- *     tags: [Users]
- *     summary: Create a new user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *     responses:
- *       201:
- *         description: User created
- *       400:
- *         description: Error creating user
+ *         $ref: '#/components/schemas/NotFoundError'
  *       500:
- *         description: Server error
+ *         $ref: '#/components/schemas/ServerError'
  */
-router.post('/', userController.createUser);
-
-/**
- * @swagger
- * /users/{id}:
- *   put:
- *     tags: [Users]
- *     summary: Update a user by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: The user ID
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/User'
- *     responses:
- *       200:
- *         description: User updated
- *       404:
- *         description: User not found
- */
-router.put('/:id', userController.updateUser);
-
-/**
- * @swagger
- * /users/{id}:
- *   delete:
- *     tags: [Users]
- *     summary: Delete a user by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: The user ID
- *         schema:
- *           type: string
- *     responses:
- *       204:
- *         description: User deleted
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
-router.delete('/:id', userController.deleteUser);
+router.get('/:id', authHandler, userController.getUserById);
 
 export default router;
