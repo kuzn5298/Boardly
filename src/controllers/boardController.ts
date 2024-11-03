@@ -18,6 +18,16 @@ export const getBoardsByUser = asyncHandler(
   }
 );
 
+export const getBoardById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { authUserId } = req.body;
+
+    const board = await boardService.getBoardById(id, authUserId);
+    res.status(200).json(board);
+  }
+);
+
 export const addUserToBoard = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;

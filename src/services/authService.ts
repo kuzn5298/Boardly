@@ -1,12 +1,13 @@
 import bcrypt from 'bcryptjs';
 import { QueryFailedError } from 'typeorm';
+import { JwtPayload } from 'jsonwebtoken';
+import { plainToInstance } from 'class-transformer';
 import { User } from '@/entities';
 import { AuthUserDTO, UserDTO } from '@/dto';
 import { validateOrError } from '@/utils';
 import { AppDataSource } from '@/config/orm';
 import { ApiError } from '@/errors';
 import { tokenService } from '.';
-import { JwtPayload } from 'jsonwebtoken';
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -28,7 +29,7 @@ export const registration = async (authUser: AuthUserDTO): Promise<UserDTO> => {
     }
     throw error;
   }
-  const userDTO = new UserDTO(user);
+  const userDTO = plainToInstance(UserDTO, user);
   return userDTO;
 };
 
@@ -44,7 +45,7 @@ export const login = async (authUser: AuthUserDTO) => {
     throw ApiError.BadRequest('Invalid credentials');
   }
 
-  const userDTO = new UserDTO(user);
+  const userDTO = plainToInstance(UserDTO, user);
   const tokens = tokenService.generateTokens(user.id);
   await tokenService.saveRefreshToken(user.id, tokens.refreshToken);
   return { ...tokens, user: userDTO };

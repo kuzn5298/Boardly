@@ -1,3 +1,5 @@
+import { Exclude, Expose } from 'class-transformer';
+
 /**
  * @swagger
  * components:
@@ -18,12 +20,11 @@
  *         - email
  */
 
+@Exclude()
 export class UserDTO {
+  @Expose()
   id!: string;
-  email!: string;
 
-  constructor(data: UserDTO) {
-    this.id = data.id;
-    this.email = data.email;
-  }
+  @Expose()
+  email!: string;
 }

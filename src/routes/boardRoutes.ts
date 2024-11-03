@@ -64,7 +64,7 @@ router.post('/', authHandler, boardController.createBoard);
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/BoardDTO'
+ *                 $ref: '#/components/schemas/ShortBoardDTO'
  *       400:
  *         $ref: '#/components/schemas/BadRequestError'
  *       401:
@@ -73,6 +73,39 @@ router.post('/', authHandler, boardController.createBoard);
  *         $ref: '#/components/schemas/ServerError'
  */
 router.get('/', authHandler, boardController.getBoardsByUser);
+
+/**
+ * @swagger
+ * /boards/{id}:
+ *   get:
+ *     tags: [Boards]
+ *     summary: Get a board by ID
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The board ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Board found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/BoardDTO'
+ *       400:
+ *         $ref: '#/components/schemas/BadRequestError'
+ *       401:
+ *         $ref: '#/components/schemas/UnauthorizedError'
+ *       404:
+ *         $ref: '#/components/schemas/NotFoundError'
+ *       500:
+ *         $ref: '#/components/schemas/ServerError'
+ */
+router.get('/:id', authHandler, boardController.getBoardById);
 
 /**
  * @swagger
@@ -95,14 +128,14 @@ router.get('/', authHandler, boardController.getBoardsByUser);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/BoardDTO'
+ *             $ref: '#/components/schemas/ShortBoardDTO'
  *     responses:
  *       200:
  *         description: Board updated
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BoardDTO'
+ *               $ref: '#/components/schemas/ShortBoardDTO'
  *       400:
  *         $ref: '#/components/schemas/BadRequestError'
  *       401:
@@ -175,7 +208,7 @@ router.delete('/:id', authHandler, boardController.deleteBoard);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BoardDTO'
+ *               $ref: '#/components/schemas/ShortBoardDTO'
  *       400:
  *         $ref: '#/components/schemas/BadRequestError'
  *       401:
@@ -189,7 +222,6 @@ router.post('/:id/users', authHandler, boardController.addUserToBoard);
 
 /**
  * @swagger
- *
  * /boards/{id}/users/{userId}:
  *   delete:
  *     tags: [Boards]
@@ -215,7 +247,7 @@ router.post('/:id/users', authHandler, boardController.addUserToBoard);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BoardDTO'
+ *               $ref: '#/components/schemas/ShortBoardDTO'
  *       400:
  *         $ref: '#/components/schemas/BadRequestError'
  *       401:

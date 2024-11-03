@@ -1,8 +1,9 @@
+import { plainToInstance } from 'class-transformer';
 import { AppDataSource } from '@/config/orm';
 import { Board, User } from '@/entities';
 import { ApiError } from '@/errors';
 import { validateOrError } from '@/utils';
-import { BoardDTO } from '@/dto';
+import { BoardDTO, ShortBoardDTO } from '@/dto';
 import { userService } from '.';
 
 const userRepository = AppDataSource.getRepository(User);
@@ -18,19 +19,49 @@ export const createBoard = async (
   const board = boardRepository.create({ name, owner });
   await validateOrError(board);
   await boardRepository.save(board);
-  const boardDTO = new BoardDTO(board);
+
+  const boardDTO = plainToInstance(BoardDTO, board);
 
   return boardDTO;
 };
 
-export const getBoardsByUser = async (userId: string): Promise<BoardDTO[]> => {
+export const getBoardsByUser = async (
+  userId: string
+): Promise<ShortBoardDTO[]> => {
   const boards = await boardRepository.find({
     where: [{ owner: { id: userId } }, { users: { id: userId } }],
   });
 
-  const boardsDTO = boards.map((board) => new BoardDTO(board));
+  const boardsDTO = plainToInstance(ShortBoardDTO, boards);
 
   return boardsDTO;
+};
+
+export const getBoardById = async (
+  boardId: string,
+  userId: string
+): Promise<ShortBoardDTO> => {
+  const board = await boardRepository.findOne({
+    where: { id: boardId },
+    relations: ['owner', 'users'],
+  });
+
+  if (!board) {
+    throw ApiError.NotFound('Board not found');
+  }
+
+  const isOwner = board.owner.id === userId;
+  const isUserInBoard = board.users.some((user) => user.id === userId);
+
+  if (!isOwner && !isUserInBoard) {
+    throw ApiError.BadRequest(
+      'You do not have permission to access this board'
+    );
+  }
+
+  const boardDTO = plainToInstance(BoardDTO, board);
+
+  return boardDTO;
 };
 
 export const isBoardOwner = async (
@@ -48,7 +79,7 @@ export const isBoardOwner = async (
 export const updateBoard = async (
   id: string,
   name: string
-): Promise<BoardDTO | null> => {
+): Promise<ShortBoardDTO | null> => {
   const board = await boardRepository.findOne({ where: { id } });
   if (!board) {
     throw ApiError.NotFound('Board not found');
@@ -57,8 +88,9 @@ export const updateBoard = async (
   board.name = name;
   await validateOrError(board);
   await boardRepository.save(board);
+  const boardDTO = plainToInstance(ShortBoardDTO, board);
 
-  return new BoardDTO(board);
+  return boardDTO;
 };
 
 export const deleteBoard = async (id: string): Promise<boolean> => {
@@ -69,7 +101,7 @@ export const deleteBoard = async (id: string): Promise<boolean> => {
 export const addUserToBoard = async (
   boardId: string,
   userId: string
-): Promise<BoardDTO | null> => {
+): Promise<ShortBoardDTO | null> => {
   const board = await boardRepository.findOne({
     where: { id: boardId },
     relations: ['users'],
@@ -79,8 +111,7 @@ export const addUserToBoard = async (
   if (board && user) {
     board.users.push(user);
     await boardRepository.save(board);
-    const boardDTO = new BoardDTO(board);
-    console.log('boardDTO', boardDTO);
+    const boardDTO = plainToInstance(ShortBoardDTO, board);
     return boardDTO;
   }
   return null;
