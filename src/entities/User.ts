@@ -4,8 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
+  ManyToMany,
 } from 'typeorm';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
+import { Board } from './Board';
 
 @Entity()
 export class User {
@@ -26,4 +29,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @OneToMany(() => Board, (board) => board.owner)
+  ownedBoards!: Board[];
+
+  @ManyToMany(() => Board, (board) => board.users)
+  boards!: Board[];
 }

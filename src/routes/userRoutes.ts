@@ -13,30 +13,6 @@ const router = Router();
 
 /**
  * @swagger
- * /users:
- *   get:
- *     tags: [Users]
- *     summary: Get a list of users
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: A list of users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/UserDTO'
- *       401:
- *         $ref: '#/components/schemas/UnauthorizedError'
- *       500:
- *         $ref: '#/components/schemas/ServerError'
- */
-router.get('/', authHandler, userController.getAllUsers);
-
-/**
- * @swagger
  *
  * /users/{id}:
  *   get:

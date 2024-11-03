@@ -13,7 +13,10 @@ const userRepository = AppDataSource.getRepository(User);
 export const registration = async (authUser: AuthUserDTO): Promise<UserDTO> => {
   const { email, password } = authUser;
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = userRepository.create({ email, password: hashedPassword });
+  const user = userRepository.create({
+    email,
+    password: hashedPassword,
+  });
   await validateOrError(user);
   try {
     await userRepository.save(user);
