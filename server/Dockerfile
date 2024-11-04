@@ -1,4 +1,5 @@
-FROM node:18 AS builder
+# Stage 1: Build
+FROM node:18 AS build
 
 WORKDIR /app
 
@@ -8,15 +9,15 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Final image
+# Stage 2: Serve
 FROM node:18
 
 WORKDIR /app
 
-COPY --from=builder /app/dist ./dist
+COPY --from=build /app/dist ./dist
 
 COPY package*.json ./
 RUN npm install --production
 
-EXPOSE 3000
+EXPOSE 5000
 CMD ["node", "dist/index.js"]

@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ path: '../.env' });
+
+console.log(process.env);
 
 export const config = {
-  port: process.env.PORT ?? 5000,
+  port: process.env.SERVER_PORT ?? 5000,
   db: {
     host: process.env.POSTGRES_HOST ?? '',
     port: parseFloat(process.env.POSTGRES_PORT ?? ''),

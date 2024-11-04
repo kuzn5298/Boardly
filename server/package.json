@@ -1,7 +1,6 @@
 {
-  "name": "nodejs-project",
-  "version": "1.0.0",
-  "description": "Node.js project",
+  "name": "boardly-server",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",

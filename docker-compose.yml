@@ -1,40 +1,60 @@
-version: '3.8'
+x-db: &db_defaults
+  image: postgres:15
+  environment:
+    POSTGRES_USER: ${POSTGRES_USER}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    POSTGRES_DB: ${POSTGRES_DB}
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+  networks:
+    - server-network
 
 services:
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - mynetwork
-
-  backend:
+  client:
     build:
-      context: .
+      context: ./client
       dockerfile: Dockerfile
+    container_name: front-end
     environment:
-      PORT: 3000
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      NODE_ENV: production
+    networks:
+      - client-network
+    profiles:
+      - prod
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: back-end
+    environment:
+      NODE_ENV: production
       POSTGRES_HOST: db
-      POSTGRES_PORT: ${POSTGRES_PORT}
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
-    ports:
-      - '3000:3000'
+      SERVER_PORT: 5000
+    env_file:
+      - .env
     depends_on:
       - db
     networks:
-      - mynetwork
+      - server-network
+    profiles:
+      - prod
+
+  db:
+    <<: *db_defaults
+    profiles:
+      - prod
+
+  db-dev:
+    <<: *db_defaults
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    profiles:
+      - dev
+    networks:
+      - dev-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -44,16 +64,38 @@ services:
     ports:
       - '8080:80'
     depends_on:
-      - db
+      - db-dev
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
-      - mynetwork
+      - dev-network
+    profiles:
+      - dev
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+    volumes:
+      - ./configs/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - client
+      - server
+    networks:
+      - client-network
+      - server-network
+    profiles:
+      - prod
 
 volumes:
   postgres_data:
+  postgres_data_dev:
   pgadmin_data:
 
 networks:
-  mynetwork:
+  client-network:
+    driver: bridge
+  server-network:
+    driver: bridge
+  dev-network:
     driver: bridge
